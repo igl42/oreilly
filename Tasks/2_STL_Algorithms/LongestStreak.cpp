@@ -34,6 +34,7 @@
 
 int main()
 {
+   /*
    std::vector<int> v1{};
    std::vector<int> v2{ 0 };
    std::vector<int> v3{ 0, 0 };
@@ -64,6 +65,7 @@ int main()
    std::cout << " The longest streak in v7 is " << streak7 << " (expected: 3)\n";
    std::cout << " The longest streak in v8 is " << streak8 << " (expected: 4)\n";
    std::cout << " The longest streak in v9 is " << streak9 << " (expected: 8)\n";
+   */
 
    return EXIT_SUCCESS;
 }

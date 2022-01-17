@@ -17,4 +17,4 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 enable_testing()
 
-add_subdirectory(2_The_Special_Member_Functions)
+add_subdirectory(2_STL_Algorithms)

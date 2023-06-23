@@ -3,7 +3,7 @@
 * \file Car_Bridge.cpp
 * \brief C++ Training - Example for the Bridge Design Pattern
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -59,11 +59,11 @@ class Car
 };
 
 
-//---- <ElectricEngine.h> -------------------------------------------------------------------------
+//---- <ElectricEngineGen1.h> ---------------------------------------------------------------------
 
 //#include <Engine.h>
 
-class ElectricEngine : public Engine
+class ElectricEngineGen1 : public Engine
 {
  public:
    void start() override;
@@ -74,18 +74,18 @@ class ElectricEngine : public Engine
 };
 
 
-//---- <ElectricEngine.cpp> -----------------------------------------------------------------------
+//---- <ElectricEngineGen1.cpp> -------------------------------------------------------------------
 
-//#include <ElectricEngine.h>
+//#include <ElectricEngineGen1.h>
 
-void ElectricEngine::start()
+void ElectricEngineGen1::start()
 {
-   std::cout << "Starting the 'ElectricEngine'...\n";
+   std::cout << "Starting the 'ElectricEngineGen1'...\n";
 }
 
-void ElectricEngine::stop()
+void ElectricEngineGen1::stop()
 {
-   std::cout << "Stopping the 'ElectricEngine'...\n";
+   std::cout << "Stopping the 'ElectricEngineGen1'...\n";
 }
 
 
@@ -109,10 +109,10 @@ class ElectricCar : public Car
 //---- <ElectricCar.cpp> --------------------------------------------------------------------------
 
 //#include <ElectricCar.h>
-//#include <ElectricEngine.h>
+//#include <ElectricEngineGen1.h>
 
 ElectricCar::ElectricCar()
-   : Car{ std::make_unique<ElectricEngine>() }
+   : Car{ std::make_unique<ElectricEngineGen1>() }
 {}
 
 void ElectricCar::drive()

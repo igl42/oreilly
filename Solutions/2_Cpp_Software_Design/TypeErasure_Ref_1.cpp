@@ -3,13 +3,13 @@
 * \file TypeErasure_Ref_1.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
 * Task: Implement the 'ShapeConstRef' class, representing a reference to a constant shape, by
-*       means of Type Erasure. 'ShapeConstRef' may require all types to provide a free 'draw()'
+*       means of Type Erasure. 'ShapeConstRef' may require all types to provide a 'free_draw()'
 *       function that draws them to the screen.
 *
 **************************************************************************************************/
@@ -90,7 +90,7 @@ class Shape
    Shape( ShapeT const& shape )
       : draw_( []( void const* c ){
                   auto const* model = static_cast<ShapeT const*>(c);
-                  draw( *model );
+                  free_draw( *model );
                } )
       , clone_( []( void const* c ) -> void* {
                    auto const* model = static_cast<ShapeT const*>(c);
@@ -130,7 +130,7 @@ class Shape
  private:
    friend class ShapeConstRef;
 
-   friend void draw( Shape const& shape )
+   friend void free_draw( Shape const& shape )
    {
       shape.draw_( shape.pimpl_.get() );
    }
@@ -153,7 +153,7 @@ class ShapeConstRef
                                    // reference prevents shape references to rvalues
       : shape_{ std::addressof(shape) }
       , draw_{ []( void const* shape ){
-                  draw( *static_cast<ShapeT const*>(shape) );
+                  free_draw( *static_cast<ShapeT const*>(shape) );
                } }
    {}
 
@@ -163,7 +163,7 @@ class ShapeConstRef
    {}
 
  private:
-   friend void draw( ShapeConstRef const& shape )
+   friend void free_draw( ShapeConstRef const& shape )
    {
       shape.draw_( shape.shape_ );
    }
@@ -222,8 +222,8 @@ class Square
 class Circle;
 class Square;
 
-void draw( Circle const& circle );
-void draw( Square const& square );
+void free_draw( Circle const& circle );
+void free_draw( Square const& square );
 
 
 //---- <Draw.cpp> ---------------------------------------------------------------------------------
@@ -233,42 +233,14 @@ void draw( Square const& square );
 //#include <Square.h>
 #include <iostream>
 
-void draw( Circle const& circle )
+void free_draw( Circle const& circle )
 {
    std::cout << "circle: radius=" << circle.radius() << std::endl;
 }
 
-void draw( Square const& square )
+void free_draw( Square const& square )
 {
    std::cout << "square: side=" << square.side() << std::endl;
-}
-
-
-//---- <Shapes.h> ---------------------------------------------------------------------------------
-
-#include <vector>
-
-using ShapeConstRefs = std::vector<ShapeConstRef>;
-
-
-//---- <DrawAllShapes.h> --------------------------------------------------------------------------
-
-//#include <Shapes.h>
-
-void drawAllShapes( ShapeConstRefs const& shapes );
-
-
-//---- <DrawAllShapes.cpp> ------------------------------------------------------------------------
-
-//#include <DrawAllShapes.h>
-//#include <Draw.h>
-
-void drawAllShapes( ShapeConstRefs const& shapes )
-{
-   for( auto const& shape : shapes )
-   {
-      draw( shape );
-   }
 }
 
 
@@ -280,22 +252,38 @@ void drawAllShapes( ShapeConstRefs const& shapes )
 //#include <DrawAllShapes.h>
 #include <cstdlib>
 
+void performAction( ShapeConstRef shape )
+{
+   free_draw( shape );
+}
+
 int main()
 {
    // Create a circle as one representative of a concrete shape type
    Circle circle{ 3.14 };
 
+   // Create a square as a second representative of a concrete shape type
+   Square square{ 2.71 };
+
+   // Drawing the two concrete shapes
+   free_draw( circle );
+   free_draw( square );
+
+   // Drawing the two shapes via abstraction
+   performAction( circle );
+   performAction( square );
+
    // Combine the shape and the drawing strategy in a 'Shape' abstraction
    Shape shape1( circle );
 
    // Draw the shape
-   draw( shape1 );
+   free_draw( shape1 );
 
    // Create a reference to the shape
    ShapeConstRef shaperef( shape1 );
 
    // Draw via the shape reference, resulting in the same output
-   draw( shaperef );
+   free_draw( shaperef );
 
    // Put a shape reference into a shape
    // This will create a copy of the ShapeConstRef instance, thus
@@ -303,7 +291,7 @@ int main()
    Shape shape2( shaperef );
 
    // Drawing the copy will again result in the same output
-   draw( shape2 );
+   free_draw( shape2 );
 
    return EXIT_SUCCESS;
 }

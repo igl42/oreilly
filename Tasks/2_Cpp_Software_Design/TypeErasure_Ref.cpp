@@ -3,26 +3,59 @@
 * \file TypeErasure_Ref.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
 * Task: Implement the 'ShapeConstRef' class, representing a reference to a constant shape, by
-*       means of Type Erasure. 'ShapeConstRef' may require all types to provide a free 'draw()'
+*       means of Type Erasure. 'ShapeConstRef' may require all types to provide a 'free_draw()'
 *       function that draws them to the screen.
 *
 **************************************************************************************************/
 
-#include <cstddef>
-#include <cstdlib>
-#include <iostream>
-#include <memory>
-#include <type_traits>
-#include <vector>
+
+//---- <GraphicsLibrary.h> (external) -------------------------------------------------------------
+
+#include <string>
+// ... and many more graphics-related headers
+
+enum class Color
+{
+   red   = 0xFF0000,
+   green = 0x00FF00,
+   blue  = 0x0000FF
+};
+
+std::string to_string( Color color )
+{
+   switch( color ) {
+      case Color::red:
+         return "red (0xFF0000)";
+      case Color::green:
+         return "green (0x00FF00)";
+      case Color::blue:
+         return "blue (0x0000FF)";
+      default:
+         return "unknown";
+   }
+}
+
+
+//---- <Point.h> ----------------------------------------------------------------------------------
+
+struct Point
+{
+   double x;
+   double y;
+};
 
 
 //---- <Shape.h> ----------------------------------------------------------------------------------
+
+#include <cstddef>
+#include <memory>
+#include <type_traits>
 
 // Pre-C++20 constraint to formulate the requirement that every shape needs a 'draw()' function
 /*
@@ -58,63 +91,79 @@ class ShapeConstRef
 
 //---- <Circle.h> ---------------------------------------------------------------------------------
 
+//#include <Point.h>
+
 class Circle
 {
  public:
    explicit Circle( double radius )
       : radius_( radius )
+      , center_()
    {}
 
    double radius() const { return radius_; }
+   Point  center() const { return center_; }
 
  private:
    double radius_;
+   Point center_;
 };
 
 
-//---- <DrawCircle.h> -----------------------------------------------------------------------------
-
-void draw( Circle const& circle );
-
-
-//---- <DrawCircle.cpp> ---------------------------------------------------------------------------
-
-void draw( Circle const& circle )
-{
-   std::cout << "circle: radius=" << circle.radius() << std::endl;
-}
-
-
 //---- <Square.h> ---------------------------------------------------------------------------------
+
+//#include <Point.h>
 
 class Square
 {
  public:
    explicit Square( double side )
       : side_( side )
+      , center_()
    {}
 
    double side() const { return side_; }
+   Point center() const { return center_; }
 
  private:
    double side_;
+   Point center_;
 };
 
 
-//---- <DrawSquare.h> -----------------------------------------------------------------------------
+//---- <Draw.h> -----------------------------------------------------------------------------------
 
-void draw( Square const& square );
+class Circle;
+class Square;
+
+void free_draw( Circle const& circle );
+void free_draw( Square const& square );
 
 
-//---- <DrawSquare.cpp> ---------------------------------------------------------------------------
+//---- <Draw.cpp> ---------------------------------------------------------------------------------
 
-void draw( Square const& square )
+//#include <Draw.h>
+//#include <Circle.h>
+//#include <Square.h>
+#include <iostream>
+
+void free_draw( Circle const& circle )
+{
+   std::cout << "circle: radius=" << circle.radius() << std::endl;
+}
+
+void free_draw( Square const& square )
 {
    std::cout << "square: side=" << square.side() << std::endl;
 }
 
 
 //---- <Main.cpp> ---------------------------------------------------------------------------------
+
+//#include <Circle.h>
+//#include <Square.h>
+//#include <Draw.h>
+#include <cstdlib>
 
 void performAction( ShapeConstRef shape )
 {

@@ -3,7 +3,7 @@
 * \file ExternalPolymorphism.cpp
 * \brief C++ Training - Programming Task for the External Polymorphism Design Pattern
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -77,7 +77,7 @@ class Circle : public Shape
    explicit Circle( double radius, DrawStrategy drawer )
       : radius_( radius )
       , center_()
-      , drawer_( drawer )
+      , drawer_( std::move(drawer) )
    {
       if( !drawer_ ) {
          throw std::invalid_argument( "Invalid draw strategy" );
@@ -111,7 +111,7 @@ class Square : public Shape
    explicit Square( double side, DrawStrategy drawer )
       : side_( side )
       , center_()
-      , drawer_( drawer )
+      , drawer_( std::move(drawer) )
    {
       if( !drawer_ ) {
          throw std::invalid_argument( "Invalid draw strategy" );
@@ -157,6 +157,15 @@ class TestDrawStrategy
  private:
    Color color_;
 };
+
+
+//---- <ShapeConcept.h> ---------------------------------------------------------------------------
+
+// TODO: Create an external hierarchy for shapes that represents the polymorphic behavior
+//       of shapes.
+
+class ShapeConcept
+{};
 
 
 //---- <Shapes.h> ---------------------------------------------------------------------------------

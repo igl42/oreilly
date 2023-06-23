@@ -3,7 +3,7 @@
 * \file Strategy_Benchmark_2.cpp
 * \brief C++ Training - Programming Task for the Strategy Design Pattern
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -25,6 +25,8 @@
 #define BENCHMARK_WITH_ELLIPSE 1
 #define BENCHMARK_WITH_SQUARE 1
 #define BENCHMARK_WITH_RECTANGLE 1
+#define BENCHMARK_WITH_PENTAGON 1
+#define BENCHMARK_WITH_HEXAGON 1
 
 
 #include <chrono>
@@ -55,7 +57,7 @@ struct Vector2D
    double y{};
 };
 
-Vector2D operator+( const Vector2D& a, const Vector2D& b )
+Vector2D operator+( Vector2D const& a, Vector2D const& b )
 {
    return Vector2D{ a.x+b.x, a.y+b.y };
 }
@@ -66,14 +68,8 @@ namespace object_oriented_solution {
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() = default;
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void translate( const Vector2D& v ) = 0;
+      virtual void translate( Vector2D const& v ) = 0;
    };
 
 
@@ -84,7 +80,7 @@ namespace object_oriented_solution {
          : radius{ r }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -103,7 +99,7 @@ namespace object_oriented_solution {
          , radius2{ r2 }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -122,7 +118,7 @@ namespace object_oriented_solution {
          : side{ s }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -141,7 +137,7 @@ namespace object_oriented_solution {
          , height{ h }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -153,11 +149,47 @@ namespace object_oriented_solution {
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      explicit Pentagon( double s )
+         : side{ s }
+      {}
+
+      void translate( Vector2D const& v ) override
+      {
+         center = center + v;
+      }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      explicit Hexagon( double s )
+         : side{ s }
+      {}
+
+      void translate( Vector2D const& v ) override
+      {
+         center = center + v;
+      }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
-      for( const auto& s : shapes )
+      for( auto const& s : shapes )
       {
          s->translate( v );
       }
@@ -170,100 +202,34 @@ namespace object_oriented_solution {
 #if BENCHMARK_STRATEGY_SOLUTION
 namespace strategy_solution {
 
-#if BENCHMARK_WITH_CIRCLE
-   struct Circle;
-
-   struct TranslateCircleStrategy
+   template< typename ShapeT >
+   struct TranslateStrategy
    {
-      TranslateCircleStrategy() = default;
-      TranslateCircleStrategy( const TranslateCircleStrategy& ) = default;
-      TranslateCircleStrategy( TranslateCircleStrategy&& ) = default;
-      virtual ~TranslateCircleStrategy() = default;
-      TranslateCircleStrategy& operator=( const TranslateCircleStrategy& ) = default;
-      TranslateCircleStrategy& operator=( TranslateCircleStrategy&& ) = default;
-
-      virtual void translate( Circle& circle, const Vector2D& v ) const = 0;
+      virtual ~TranslateStrategy() = default;
+      virtual void translate( ShapeT& shape, Vector2D const& v ) const = 0;
    };
-#endif
-
-
-#if BENCHMARK_WITH_ELLIPSE
-   struct Ellipse;
-
-   struct TranslateEllipseStrategy
-   {
-      TranslateEllipseStrategy() = default;
-      TranslateEllipseStrategy( const TranslateEllipseStrategy& ) = default;
-      TranslateEllipseStrategy( TranslateEllipseStrategy&& ) = default;
-      virtual ~TranslateEllipseStrategy() = default;
-      TranslateEllipseStrategy& operator=( const TranslateEllipseStrategy& ) = default;
-      TranslateEllipseStrategy& operator=( TranslateEllipseStrategy&& ) = default;
-
-      virtual void translate( Ellipse& ellipse, const Vector2D& v ) const = 0;
-   };
-#endif
-
-
-#if BENCHMARK_WITH_SQUARE
-   struct Square;
-
-   struct TranslateSquareStrategy
-   {
-      TranslateSquareStrategy() = default;
-      TranslateSquareStrategy( const TranslateSquareStrategy& ) = default;
-      TranslateSquareStrategy( TranslateSquareStrategy&& ) = default;
-      virtual ~TranslateSquareStrategy() = default;
-      TranslateSquareStrategy& operator=( const TranslateSquareStrategy& ) = default;
-      TranslateSquareStrategy& operator=( TranslateSquareStrategy&& ) = default;
-
-      virtual void translate( Square& square, const Vector2D& v ) const = 0;
-   };
-#endif
-
-
-#if BENCHMARK_WITH_RECTANGLE
-   struct Rectangle;
-
-   struct TranslateRectangleStrategy
-   {
-      TranslateRectangleStrategy() = default;
-      TranslateRectangleStrategy( const TranslateRectangleStrategy& ) = default;
-      TranslateRectangleStrategy( TranslateRectangleStrategy&& ) = default;
-      virtual ~TranslateRectangleStrategy() = default;
-      TranslateRectangleStrategy& operator=( const TranslateRectangleStrategy& ) = default;
-      TranslateRectangleStrategy& operator=( TranslateRectangleStrategy&& ) = default;
-
-      virtual void translate( Rectangle& rect, const Vector2D& v ) const = 0;
-   };
-#endif
 
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() = default;
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void translate( const Vector2D& v ) = 0;
+      virtual void translate( Vector2D const& v ) = 0;
    };
 
 
 #if BENCHMARK_WITH_CIRCLE
    struct Circle : public Shape
    {
-      Circle( double r, std::unique_ptr<TranslateCircleStrategy>&& ts )
+      Circle( double r, std::unique_ptr<TranslateStrategy<Circle>>&& ts )
          : radius{ r }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy->translate( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy->translate( *this, v ); }
 
       double radius{};
       Vector2D center{};
-      std::unique_ptr<TranslateCircleStrategy> strategy{};
+      std::unique_ptr<TranslateStrategy<Circle>> strategy{};
    };
 #endif
 
@@ -271,18 +237,18 @@ namespace strategy_solution {
 #if BENCHMARK_WITH_ELLIPSE
    struct Ellipse : public Shape
    {
-      Ellipse( double r1, double r2, std::unique_ptr<TranslateEllipseStrategy>&& ts )
+      Ellipse( double r1, double r2, std::unique_ptr<TranslateStrategy<Ellipse>>&& ts )
          : radius1{ r1 }
          , radius2{ r2 }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy->translate( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy->translate( *this, v ); }
 
       double radius1{};
       double radius2{};
       Vector2D center{};
-      std::unique_ptr<TranslateEllipseStrategy> strategy{};
+      std::unique_ptr<TranslateStrategy<Ellipse>> strategy{};
    };
 #endif
 
@@ -290,16 +256,16 @@ namespace strategy_solution {
 #if BENCHMARK_WITH_SQUARE
    struct Square : public Shape
    {
-      Square( double s, std::unique_ptr<TranslateSquareStrategy>&& ts )
+      Square( double s, std::unique_ptr<TranslateStrategy<Square>>&& ts )
          : side{ s }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy->translate( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy->translate( *this, v ); }
 
       double side{};
       Vector2D center{};
-      std::unique_ptr<TranslateSquareStrategy> strategy{};
+      std::unique_ptr<TranslateStrategy<Square>> strategy{};
    };
 #endif
 
@@ -307,69 +273,69 @@ namespace strategy_solution {
 #if BENCHMARK_WITH_RECTANGLE
    struct Rectangle : public Shape
    {
-      Rectangle( double w, double h, std::unique_ptr<TranslateRectangleStrategy>&& ts )
+      Rectangle( double w, double h, std::unique_ptr<TranslateStrategy<Rectangle>>&& ts )
          : width{ w }
          , height{ h }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy->translate( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy->translate( *this, v ); }
 
       double width{};
       double height{};
       Vector2D center{};
-      std::unique_ptr<TranslateRectangleStrategy> strategy{};
+      std::unique_ptr<TranslateStrategy<Rectangle>> strategy{};
    };
 #endif
 
 
-#if BENCHMARK_WITH_CIRCLE
-   struct ConcreteTranslateCircleStrategy : public TranslateCircleStrategy
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
    {
-      void translate( Circle& circle, const Vector2D& v ) const override
+      Pentagon( double s, std::unique_ptr<TranslateStrategy<Pentagon>>&& ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy->translate( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      std::unique_ptr<TranslateStrategy<Pentagon>> strategy{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      Hexagon( double s, std::unique_ptr<TranslateStrategy<Hexagon>>&& ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy->translate( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      std::unique_ptr<TranslateStrategy<Hexagon>> strategy{};
+   };
+#endif
+
+
+   template< typename ShapeT >
+   struct ConcreteTranslateStrategy : public TranslateStrategy<ShapeT>
+   {
+      void translate( ShapeT& shape, Vector2D const& v ) const override
       {
-         circle.center = circle.center + v;
+         shape.center = shape.center + v;
       }
    };
-#endif
-
-
-#if BENCHMARK_WITH_ELLIPSE
-   struct ConcreteTranslateEllipseStrategy : public TranslateEllipseStrategy
-   {
-      void translate( Ellipse& ellipse, const Vector2D& v ) const override
-      {
-         ellipse.center = ellipse.center + v;
-      }
-   };
-#endif
-
-
-#if BENCHMARK_WITH_SQUARE
-   struct ConcreteTranslateSquareStrategy : public TranslateSquareStrategy
-   {
-      void translate( Square& square, const Vector2D& v ) const override
-      {
-         square.center = square.center + v;
-      }
-   };
-#endif
-
-
-#if BENCHMARK_WITH_RECTANGLE
-   struct ConcreteTranslateRectangleStrategy : public TranslateRectangleStrategy
-   {
-      void translate( Rectangle& rectangle, const Vector2D& v ) const override
-      {
-         rectangle.center = rectangle.center + v;
-      }
-   };
-#endif
 
 
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -386,35 +352,29 @@ namespace std_function_solution {
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() = default;
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void translate( const Vector2D& v ) = 0;
+      virtual void translate( Vector2D const& v ) = 0;
    };
 
 
 #if BENCHMARK_WITH_CIRCLE
    struct Circle : public Shape
    {
-      using TranslateStrategy = std::function<void(Circle&, const Vector2D&)>;
+      using TranslateStrategy = std::function<void(Circle&, Vector2D const&)>;
 
       Circle( double r, TranslateStrategy ts )
          : radius{ r }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double radius{};
       Vector2D center{};
       TranslateStrategy strategy{};
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -424,7 +384,7 @@ namespace std_function_solution {
 #if BENCHMARK_WITH_ELLIPSE
    struct Ellipse : public Shape
    {
-      using TranslateStrategy = std::function<void(Ellipse&, const Vector2D&)>;
+      using TranslateStrategy = std::function<void(Ellipse&, Vector2D const&)>;
 
       Ellipse( double r1, double r2, TranslateStrategy ts )
          : radius1{ r1 }
@@ -432,7 +392,7 @@ namespace std_function_solution {
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double radius1{};
       double radius2{};
@@ -440,7 +400,7 @@ namespace std_function_solution {
       TranslateStrategy strategy{};
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -450,21 +410,21 @@ namespace std_function_solution {
 #if BENCHMARK_WITH_SQUARE
    struct Square : public Shape
    {
-      using TranslateStrategy = std::function<void(Square&, const Vector2D&)>;
+      using TranslateStrategy = std::function<void(Square&, Vector2D const&)>;
 
       Square( double s, TranslateStrategy ts )
          : side{ s }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double side{};
       Vector2D center{};
       TranslateStrategy strategy{};
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -474,7 +434,7 @@ namespace std_function_solution {
 #if BENCHMARK_WITH_RECTANGLE
    struct Rectangle : public Shape
    {
-      using TranslateStrategy = std::function<void(Rectangle&, const Vector2D&)>;
+      using TranslateStrategy = std::function<void(Rectangle&, Vector2D const&)>;
 
       Rectangle( double w, double h, TranslateStrategy ts )
          : width{ w }
@@ -482,7 +442,7 @@ namespace std_function_solution {
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double width{};
       double height{};
@@ -490,16 +450,64 @@ namespace std_function_solution {
       TranslateStrategy strategy{};
    };
 
-   void translate( Rectangle& rectangle, const Vector2D& v )
+   void translate( Rectangle& rectangle, Vector2D const& v )
    {
       rectangle.center = rectangle.center + v;
    }
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      using TranslateStrategy = std::function<void(Pentagon&, Vector2D const&)>;
+
+      Pentagon( double s, TranslateStrategy ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      TranslateStrategy strategy{};
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      using TranslateStrategy = std::function<void(Hexagon&, Vector2D const&)>;
+
+      Hexagon( double s, TranslateStrategy ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      TranslateStrategy strategy{};
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
+   }
+#endif
+
+
    struct Translate {
       template< typename T >
-      void operator()( T& t, const Vector2D& v )
+      void operator()( T& t, Vector2D const& v )
       {
          translate( t, v );
       }
@@ -508,7 +516,7 @@ namespace std_function_solution {
 
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -525,35 +533,29 @@ namespace boost_function_solution {
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() = default;
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void translate( const Vector2D& v ) = 0;
+      virtual void translate( Vector2D const& v ) = 0;
    };
 
 
 #if BENCHMARK_WITH_CIRCLE
    struct Circle : public Shape
    {
-      using TranslateStrategy = boost::function<void(Circle&, const Vector2D&)>;
+      using TranslateStrategy = boost::function<void(Circle&, Vector2D const&)>;
 
       Circle( double r, TranslateStrategy ts )
          : radius{ r }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double radius{};
       Vector2D center{};
       TranslateStrategy strategy{};
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -563,7 +565,7 @@ namespace boost_function_solution {
 #if BENCHMARK_WITH_ELLIPSE
    struct Ellipse : public Shape
    {
-      using TranslateStrategy = boost::function<void(Ellipse&, const Vector2D&)>;
+      using TranslateStrategy = boost::function<void(Ellipse&, Vector2D const&)>;
 
       Ellipse( double r1, double r2, TranslateStrategy ts )
          : radius1{ r1 }
@@ -571,7 +573,7 @@ namespace boost_function_solution {
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double radius1{};
       double radius2{};
@@ -579,7 +581,7 @@ namespace boost_function_solution {
       TranslateStrategy strategy{};
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -589,21 +591,21 @@ namespace boost_function_solution {
 #if BENCHMARK_WITH_SQUARE
    struct Square : public Shape
    {
-      using TranslateStrategy = boost::function<void(Square&, const Vector2D&)>;
+      using TranslateStrategy = boost::function<void(Square&, Vector2D const&)>;
 
       Square( double s, TranslateStrategy ts )
          : side{ s }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double side{};
       Vector2D center{};
       TranslateStrategy strategy{};
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -613,7 +615,7 @@ namespace boost_function_solution {
 #if BENCHMARK_WITH_RECTANGLE
    struct Rectangle : public Shape
    {
-      using TranslateStrategy = boost::function<void(Rectangle&, const Vector2D&)>;
+      using TranslateStrategy = boost::function<void(Rectangle&, Vector2D const&)>;
 
       Rectangle( double w, double h, TranslateStrategy ts )
          : width{ w }
@@ -621,7 +623,7 @@ namespace boost_function_solution {
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double width{};
       double height{};
@@ -629,16 +631,64 @@ namespace boost_function_solution {
       TranslateStrategy strategy{};
    };
 
-   void translate( Rectangle& rectangle, const Vector2D& v )
+   void translate( Rectangle& rectangle, Vector2D const& v )
    {
       rectangle.center = rectangle.center + v;
    }
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      using TranslateStrategy = boost::function<void(Pentagon&, Vector2D const&)>;
+
+      Pentagon( double s, TranslateStrategy ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      TranslateStrategy strategy{};
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      using TranslateStrategy = boost::function<void(Hexagon&, Vector2D const&)>;
+
+      Hexagon( double s, TranslateStrategy ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      TranslateStrategy strategy{};
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
+   }
+#endif
+
+
    struct Translate {
       template< typename T >
-      void operator()( T& t, const Vector2D& v )
+      void operator()( T& t, Vector2D const& v )
       {
          translate( t, v );
       }
@@ -647,7 +697,7 @@ namespace boost_function_solution {
 
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -726,35 +776,29 @@ namespace manual_function_solution {
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() = default;
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void translate( const Vector2D& v ) = 0;
+      virtual void translate( Vector2D const& v ) = 0;
    };
 
 
 #if BENCHMARK_WITH_CIRCLE
    struct Circle : public Shape
    {
-      using TranslateStrategy = Function<void(Circle&, const Vector2D&),8UL>;
+      using TranslateStrategy = Function<void(Circle&, Vector2D const&),8UL>;
 
       Circle( double r, TranslateStrategy ts )
          : radius{ r }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double radius{};
       Vector2D center{};
       TranslateStrategy strategy;
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -764,7 +808,7 @@ namespace manual_function_solution {
 #if BENCHMARK_WITH_ELLIPSE
    struct Ellipse : public Shape
    {
-      using TranslateStrategy = Function<void(Ellipse&, const Vector2D&),8UL>;
+      using TranslateStrategy = Function<void(Ellipse&, Vector2D const&),8UL>;
 
       Ellipse( double r1, double r2, TranslateStrategy ts )
          : radius1{ r1 }
@@ -772,7 +816,7 @@ namespace manual_function_solution {
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double radius1{};
       double radius2{};
@@ -780,7 +824,7 @@ namespace manual_function_solution {
       TranslateStrategy strategy;
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -790,21 +834,21 @@ namespace manual_function_solution {
 #if BENCHMARK_WITH_SQUARE
    struct Square : public Shape
    {
-      using TranslateStrategy = Function<void(Square&, const Vector2D&),8UL>;
+      using TranslateStrategy = Function<void(Square&, Vector2D const&),8UL>;
 
       Square( double s, TranslateStrategy ts )
          : side{ s }
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double side{};
       Vector2D center{};
       TranslateStrategy strategy;
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -814,7 +858,7 @@ namespace manual_function_solution {
 #if BENCHMARK_WITH_RECTANGLE
    struct Rectangle : public Shape
    {
-      using TranslateStrategy = Function<void(Rectangle&, const Vector2D&),8UL>;
+      using TranslateStrategy = Function<void(Rectangle&, Vector2D const&),8UL>;
 
       Rectangle( double w, double h, TranslateStrategy ts )
          : width{ w }
@@ -822,7 +866,7 @@ namespace manual_function_solution {
          , strategy{ std::move(ts) }
       {}
 
-      void translate( const Vector2D& v ) override { strategy( *this, v ); }
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
 
       double width{};
       double height{};
@@ -830,16 +874,64 @@ namespace manual_function_solution {
       TranslateStrategy strategy;
    };
 
-   void translate( Rectangle& rectangle, const Vector2D& v )
+   void translate( Rectangle& rectangle, Vector2D const& v )
    {
       rectangle.center = rectangle.center + v;
    }
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      using TranslateStrategy = Function<void(Pentagon&, Vector2D const&),8UL>;
+
+      Pentagon( double s, TranslateStrategy ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      TranslateStrategy strategy;
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      using TranslateStrategy = Function<void(Hexagon&, Vector2D const&),8UL>;
+
+      Hexagon( double s, TranslateStrategy ts )
+         : side{ s }
+         , strategy{ std::move(ts) }
+      {}
+
+      void translate( Vector2D const& v ) override { strategy( *this, v ); }
+
+      double side{};
+      Vector2D center{};
+      TranslateStrategy strategy;
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
+   }
+#endif
+
+
    struct Translate {
       template< typename T >
-      void operator()( T& t, const Vector2D& v ) const
+      void operator()( T& t, Vector2D const& v ) const
       {
          translate( t, v );
       }
@@ -848,7 +940,7 @@ namespace manual_function_solution {
 
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -870,7 +962,7 @@ namespace type_erasure_solution {
       Vector2D center{};
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -885,7 +977,7 @@ namespace type_erasure_solution {
       Vector2D center{};
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -899,7 +991,7 @@ namespace type_erasure_solution {
       Vector2D center{};
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -914,9 +1006,37 @@ namespace type_erasure_solution {
       Vector2D center{};
    };
 
-   void translate( Rectangle& rect, const Vector2D& v )
+   void translate( Rectangle& rect, Vector2D const& v )
    {
       rect.center = rect.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
    }
 #endif
 
@@ -925,14 +1045,14 @@ namespace type_erasure_solution {
    {
     public:
       template< typename T >
-      Shape( const T& shape )
+      Shape( T const& shape )
          : pimpl_{ new Model<T>( shape ) }
       {}
 
-      Shape( const Shape& s ) : pimpl_{ s.pimpl_->clone() } {}
+      Shape( Shape const& s ) : pimpl_{ s.pimpl_->clone() } {}
       Shape( Shape&& ) = default;
       ~Shape() = default;
-      Shape& operator=( const Shape& s ) { Shape tmp( s ); std::swap( pimpl_, tmp.pimpl_ ); return *this; }
+      Shape& operator=( Shape const& s ) { Shape tmp( s ); std::swap( pimpl_, tmp.pimpl_ ); return *this; }
       Shape& operator=( Shape&& ) = default;
 
     private:
@@ -940,19 +1060,19 @@ namespace type_erasure_solution {
       {
          virtual ~Concept() = default;
          virtual Concept* clone() const = 0;
-         virtual void doTranslate( const Vector2D& ) = 0;
+         virtual void doTranslate( Vector2D const& ) = 0;
       };
 
       template< typename T >
       struct Model : public Concept
       {
-         explicit Model( const T& shape ) : shape_( shape ) {}
+         explicit Model( T const& shape ) : shape_( shape ) {}
          Concept* clone() const override { return new Model(*this); }
-         void doTranslate( const Vector2D& v ) override { translate( shape_, v ); }
+         void doTranslate( Vector2D const& v ) override { translate( shape_, v ); }
          T shape_;
       };
 
-      friend void translate( Shape& s, const Vector2D& v )
+      friend void translate( Shape& s, Vector2D const& v )
       {
          s.pimpl_->doTranslate( v );
       }
@@ -962,7 +1082,7 @@ namespace type_erasure_solution {
 
    using Shapes = std::vector<Shape>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -986,7 +1106,7 @@ constexpr size_t maxsize( 32UL );
       Vector2D center{};
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -1003,7 +1123,7 @@ constexpr size_t maxsize( 32UL );
       Vector2D center{};
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -1019,7 +1139,7 @@ constexpr size_t maxsize( 32UL );
       Vector2D center{};
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -1036,12 +1156,44 @@ constexpr size_t maxsize( 32UL );
       Vector2D center{};
    };
 
-   void translate( Rectangle& rectangle, const Vector2D& v )
+   void translate( Rectangle& rectangle, Vector2D const& v )
    {
       rectangle.center = rectangle.center + v;
    }
 
    static_assert( sizeof(Rectangle) <= maxsize );
+#endif
+
+
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+
+   static_assert( sizeof(Pentagon) <= maxsize );
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
+   }
+
+   static_assert( sizeof(Hexagon) <= maxsize );
 #endif
 
 
@@ -1053,29 +1205,29 @@ constexpr size_t maxsize( 32UL );
       {
          virtual ~Concept() = default;
          virtual void clone( Concept* ) const = 0;
-         virtual void doTranslate( const Vector2D& ) = 0;
+         virtual void doTranslate( Vector2D const& ) = 0;
       };
 
       template< typename T >
       struct Model : public Concept
       {
-         explicit Model( const T& shape ) : shape_( shape ) {}
+         explicit Model( T const& shape ) : shape_( shape ) {}
          void clone( Concept* ptr ) const override { new (ptr) Model(*this); }
-         void doTranslate( const Vector2D& v ) override { translate( shape_, v ); }
+         void doTranslate( Vector2D const& v ) override { translate( shape_, v ); }
          T shape_{};
       };
 
     public:
       template< typename T >
-      Shape( const T& shape )
+      Shape( T const& shape )
          // data_ intentionally not initialized
       {
          new ( pimpl() ) Model<T>( shape );
       }
 
-      Shape( const Shape& s ) { s.pimpl()->clone( pimpl() ); }
+      Shape( Shape const& s ) { s.pimpl()->clone( pimpl() ); }
       ~Shape() { pimpl()->~Concept(); }
-      Shape& operator=( const Shape& s ) { pimpl()->~Concept(); s.pimpl()->clone( pimpl() ); return *this; }
+      Shape& operator=( Shape const& s ) { pimpl()->~Concept(); s.pimpl()->clone( pimpl() ); return *this; }
 
     private:
       Concept* pimpl()
@@ -1083,12 +1235,12 @@ constexpr size_t maxsize( 32UL );
          return reinterpret_cast<Concept*>( &data_ );
       };
 
-      const Concept* pimpl() const
+      Concept const* pimpl() const
       {
-         return reinterpret_cast<const Concept*>( &data_ );
+         return reinterpret_cast<Concept const*>( &data_ );
       };
 
-      friend void translate( Shape& s, const Vector2D& v )
+      friend void translate( Shape& s, Vector2D const& v )
       {
          s.pimpl()->doTranslate( v );
       }
@@ -1098,7 +1250,7 @@ constexpr size_t maxsize( 32UL );
 
    using Shapes = std::vector<Shape<maxsize,16UL>>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -1120,7 +1272,7 @@ namespace type_erasure_manual_solution {
       Vector2D center{};
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -1135,7 +1287,7 @@ namespace type_erasure_manual_solution {
       Vector2D center{};
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -1149,7 +1301,7 @@ namespace type_erasure_manual_solution {
       Vector2D center{};
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -1164,9 +1316,37 @@ namespace type_erasure_manual_solution {
       Vector2D center{};
    };
 
-   void translate( Rectangle& rect, const Vector2D& v )
+   void translate( Rectangle& rect, Vector2D const& v )
    {
       rect.center = rect.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
    }
 #endif
 
@@ -1176,7 +1356,7 @@ namespace type_erasure_manual_solution {
     public:
       template< typename T >
       Shape( T const& x )
-         : translate_( []( Concept* c, const Vector2D& v ){ auto model( static_cast<Model<T>*>(c) ); translate( model->object, v ); } )
+         : translate_( []( Concept* c, Vector2D const& v ){ auto model( static_cast<Model<T>*>(c) ); translate( model->object, v ); } )
          , clone_    ( []( Concept* c ){ auto model( static_cast<Model<T>*>(c) ); return static_cast<Concept*>( new Model<T>( *model ) ); } )
          , destroy_  ( []( Concept* c ){ auto model( static_cast<Model<T>*>(c) ); delete model; } )
          , pimpl_    ( new Model<T>( x ) )
@@ -1218,7 +1398,7 @@ namespace type_erasure_manual_solution {
       }
 
     private:
-      friend void translate( Shape& s, const Vector2D& v )
+      friend void translate( Shape& s, Vector2D const& v )
       {
          s.translate_( s.pimpl_, v );
       }
@@ -1233,7 +1413,7 @@ namespace type_erasure_manual_solution {
          T object;
       };
 
-      void (*translate_)( Concept*, const Vector2D& ){};
+      void (*translate_)( Concept*, Vector2D const& ){};
       Concept* (*clone_)( Concept* ){};
       void (*destroy_)( Concept* ){};
       Concept* pimpl_{};
@@ -1241,7 +1421,7 @@ namespace type_erasure_manual_solution {
 
    using Shapes = std::vector<Shape>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -1259,12 +1439,12 @@ struct ShapeConcept : decltype( dyno::requires_(
    dyno::CopyConstructible{},
    dyno::MoveConstructible{},
    dyno::Destructible{},
-   "translate"_s = dyno::function<void (dyno::T&, const Vector2D&)>
+   "translate"_s = dyno::function<void (dyno::T&, Vector2D const&)>
 )) { };
 
 template <typename T>
 auto const dyno::default_concept_map<ShapeConcept, T> = dyno::make_concept_map(
-   "translate"_s = []( T& self, const Vector2D& v ) { translate( self, v ); }
+   "translate"_s = []( T& self, Vector2D const& v ) { translate( self, v ); }
 );
 
 namespace type_erasure_dyno_solution {
@@ -1276,7 +1456,7 @@ namespace type_erasure_dyno_solution {
       Vector2D center{};
    };
 
-   void translate( Circle& circle, const Vector2D& v )
+   void translate( Circle& circle, Vector2D const& v )
    {
       circle.center = circle.center + v;
    }
@@ -1291,7 +1471,7 @@ namespace type_erasure_dyno_solution {
       Vector2D center{};
    };
 
-   void translate( Ellipse& ellipse, const Vector2D& v )
+   void translate( Ellipse& ellipse, Vector2D const& v )
    {
       ellipse.center = ellipse.center + v;
    }
@@ -1305,7 +1485,7 @@ namespace type_erasure_dyno_solution {
       Vector2D center{};
    };
 
-   void translate( Square& square, const Vector2D& v )
+   void translate( Square& square, Vector2D const& v )
    {
       square.center = square.center + v;
    }
@@ -1320,9 +1500,37 @@ namespace type_erasure_dyno_solution {
       Vector2D center{};
    };
 
-   void translate( Rectangle& rectangle, const Vector2D& v )
+   void translate( Rectangle& rectangle, Vector2D const& v )
    {
       rectangle.center = rectangle.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Pentagon& pentagon, Vector2D const& v )
+   {
+      pentagon.center = pentagon.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Hexagon& hexagon, Vector2D const& v )
+   {
+      hexagon.center = hexagon.center + v;
    }
 #endif
 
@@ -1333,14 +1541,14 @@ namespace type_erasure_dyno_solution {
       template <typename T>
       Shape( T x ) : poly_{x} { }
 
-      void translate( const Vector2D& v )
+      void translate( Vector2D const& v )
       { poly_.virtual_( "translate"_s )( poly_, v ); }
 
     private:
       dyno::poly<ShapeConcept> poly_;
    };
 
-   void translate( Shape& shape, const Vector2D& v )
+   void translate( Shape& shape, Vector2D const& v )
    {
       shape.translate( v );
    }
@@ -1348,7 +1556,7 @@ namespace type_erasure_dyno_solution {
 
    using Shapes = std::vector<Shape>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -1364,14 +1572,15 @@ namespace type_erasure_dyno_solution {
 
 int main()
 {
-   const size_t N    ( 10000UL );
-   const size_t steps( 25000UL );
+   constexpr size_t N    ( 10000UL );
+   constexpr size_t steps( 25000UL );
 
    std::random_device rd{};
-   const unsigned int seed( rd() );
+   unsigned int const seed( rd() );
 
    std::mt19937 rng{};
-   std::uniform_real_distribution<double> dist( 0.0, 1.0 );
+   std::uniform_int_distribution<int> int_dist( 1, 6 );
+   std::uniform_real_distribution<double> real_dist( 0.0, 1.0 );
 
    std::cout << std::endl;
 
@@ -1385,26 +1594,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 4) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng) ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng) ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng) ) );
 #endif
          }
       }
@@ -1413,12 +1632,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " OO solution runtime                  : " << seconds << "s\n";
    }
@@ -1434,30 +1653,48 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng)
-                                                      , std::make_unique<ConcreteTranslateCircleStrategy>() ) );
+            shapes.emplace_back(
+               std::make_unique<Circle>( real_dist(rng)
+                  , std::make_unique<ConcreteTranslateStrategy<Circle>>() ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng)
-                                                       , std::make_unique<ConcreteTranslateEllipseStrategy>() ) );
+            shapes.emplace_back(
+               std::make_unique<Ellipse>( real_dist(rng), real_dist(rng)
+                  , std::make_unique<ConcreteTranslateStrategy<Ellipse>>() ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng)
-                                                      , std::make_unique<ConcreteTranslateSquareStrategy>() ) );
+            shapes.emplace_back(
+               std::make_unique<Square>( real_dist(rng)
+                  , std::make_unique<ConcreteTranslateStrategy<Square>>() ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back(
+               std::make_unique<Rectangle>( real_dist(rng), real_dist(rng)
+                  , std::make_unique<ConcreteTranslateStrategy<Rectangle>>() ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back(
+               std::make_unique<Pentagon>( real_dist(rng)
+                  , std::make_unique<ConcreteTranslateStrategy<Pentagon>>() ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng)
-                                                         , std::make_unique<ConcreteTranslateRectangleStrategy>() ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back(
+               std::make_unique<Hexagon>( real_dist(rng)
+                  , std::make_unique<ConcreteTranslateStrategy<Hexagon>>() ) );
 #endif
          }
       }
@@ -1466,12 +1703,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Classic strategy solution runtime    : " << seconds << "s\n";
    }
@@ -1487,26 +1724,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng), Translate{} ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng), Translate{} ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng), Translate{} ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng), Translate{} ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng), Translate{} ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng), Translate{} ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng), Translate{} ) );
 #endif
          }
       }
@@ -1515,12 +1762,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " std::function solution runtime       : " << seconds << "s\n";
    }
@@ -1536,26 +1783,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng), Translate{} ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng), Translate{} ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng), Translate{} ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng), Translate{} ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng), Translate{} ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng), Translate{} ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng), Translate{} ) );
 #endif
          }
       }
@@ -1564,12 +1821,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " boost::function solution runtime     : " << seconds << "s\n";
    }
@@ -1585,26 +1842,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng), Translate{} ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng), Translate{} ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng), Translate{} ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng), Translate{} ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng), Translate{} ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng), Translate{} ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng), Translate{} ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng), Translate{} ) );
 #endif
          }
       }
@@ -1613,12 +1880,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Manual function solution runtime     : " << seconds << "s\n";
    }
@@ -1634,26 +1901,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1662,12 +1939,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Type erasure solution runtime        : " << seconds << "s\n";
    }
@@ -1683,26 +1960,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1711,12 +1998,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Type erasure SBO solution runtime    : " << seconds << "s\n";
    }
@@ -1732,26 +2019,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1760,12 +2057,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Type erasure manual solution runtime : " << seconds << "s\n";
    }
@@ -1781,26 +2078,36 @@ int main()
 
       for( size_t i=0UL; i<N; ++i )
       {
-         const double r( dist(rng) );
+         double const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1809,12 +2116,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Type erasure dyno solution runtime   : " << seconds << "s\n";
    }

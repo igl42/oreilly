@@ -2,7 +2,7 @@
 #
 #  CMakeLists for the chapter "C++ Software Design" of the C++ Training
 #
-#  Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+#  Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 #
 #  This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 #  context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -17,16 +17,36 @@ add_executable(AcyclicVisitor
    AcyclicVisitor.cpp
    )
 
-add_executable(Adapter
-   Adapter.cpp
+add_executable(Adapter_1
+   Adapter_1.cpp
    )
 
-add_executable(Any
-   Any.cpp
+add_executable(Adapter_2
+   Adapter_2.cpp
+   )
+
+add_executable(Adapter_3
+   Adapter_3.cpp
+   )
+
+add_executable(Any_1
+   Any_1.cpp
+   )
+
+add_executable(Any_2
+   Any_2.cpp
    )
 
 add_executable(Bridge
    Bridge.cpp
+   )
+
+add_executable(Calculator_Command
+   Calculator_Command.cpp
+   )
+
+add_executable(Calculator_Strategy
+   Calculator_Strategy.cpp
    )
 
 add_executable(Car_Bridge
@@ -37,24 +57,28 @@ add_executable(Car_Strategy
    Car_Strategy.cpp
    )
 
-add_executable(Decorator_Creature
-   Decorator_Creature.cpp
+add_executable(Command
+   Command.cpp
    )
 
-add_executable(Decorator_Item
-   Decorator_Item.cpp
+add_executable(ExternalAnimal
+   ExternalAnimal.cpp
    )
 
 add_executable(ExternalPolymorphism
    ExternalPolymorphism.cpp
    )
 
-add_executable(Function1
-   Function1.cpp
+add_executable(FastPimpl
+   FastPimpl.cpp
    )
 
-add_executable(Function2
-   Function2.cpp
+add_executable(Function_1
+   Function_1.cpp
+   )
+
+add_executable(Function_2
+   Function_2.cpp
    )
 
 add_executable(Function_Ref
@@ -93,16 +117,20 @@ add_executable(Strategy_Benchmark
    Strategy_Benchmark.cpp
    )
 
-add_executable(Strategy_Benchmark_Full
-   Strategy_Benchmark_Full.cpp
-   )
-
 add_executable(TypeErasure
    TypeErasure.cpp
    )
 
+add_executable(TypeErasure_MVF
+   TypeErasure_MVF.cpp
+   )
+
 add_executable(TypeErasure_Ref
    TypeErasure_Ref.cpp
+   )
+
+add_executable(TypeErasure_SBO
+   TypeErasure_SBO.cpp
    )
 
 add_executable(UniquePtr_TypeErasure
@@ -121,22 +149,24 @@ add_executable(Visitor_Benchmark
    Visitor_Benchmark.cpp
    )
 
-add_executable(Visitor_Benchmark_Full
-   Visitor_Benchmark_Full.cpp
-   )
-
 set_target_properties(
    AcyclicVisitor
-   Adapter
-   Any
+   Adapter_1
+   Adapter_2
+   Adapter_3
+   Any_1
+   Any_2
    Bridge
+   Calculator_Command
+   Calculator_Strategy
    Car_Bridge
    Car_Strategy
-   Decorator_Creature
-   Decorator_Item
+   Command
+   ExternalAnimal
    ExternalPolymorphism
-   Function1
-   Function2
+   FastPimpl
+   Function_1
+   Function_2
    Function_Ref
    InplaceAny
    InplaceFunction
@@ -146,14 +176,14 @@ set_target_properties(
    Prototype
    Strategy
    Strategy_Benchmark
-   Strategy_Benchmark_Full
    TypeErasure
+   TypeErasure_MVF
    TypeErasure_Ref
+   TypeErasure_SBO
    UniquePtr_TypeErasure
    Variant
    Visitor
    Visitor_Benchmark
-   Visitor_Benchmark_Full
    PROPERTIES
    FOLDER "2_Cpp_Software_Design"
    )

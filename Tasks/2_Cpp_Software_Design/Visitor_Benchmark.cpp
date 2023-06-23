@@ -3,7 +3,7 @@
 * \file Visitor_Benchmark.cpp
 * \brief C++ Training - Programming Task for the Visitor Design Pattern
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -13,7 +13,7 @@
 #define BENCHMARK_ENUM_SOLUTION 1
 #define BENCHMARK_OO_SOLUTION 1
 #define BENCHMARK_CYCLIC_VISITOR_SOLUTION 1
-#define BENCHMARK_ACYCLIC_VISITOR_SOLUTION 1
+#define BENCHMARK_ACYCLIC_VISITOR_SOLUTION 0
 #define BENCHMARK_STD_VARIANT_SOLUTION 1
 #define BENCHMARK_MPARK_VARIANT_SOLUTION 1
 #define BENCHMARK_BOOST_VARIANT_SOLUTION 0
@@ -23,6 +23,10 @@
 #define BENCHMARK_WITH_ELLIPSE 1
 #define BENCHMARK_WITH_SQUARE 1
 #define BENCHMARK_WITH_RECTANGLE 1
+#define BENCHMARK_WITH_PENTAGON 1
+#define BENCHMARK_WITH_HEXAGON 1
+
+#define BENCHMARK_MANUAL_VISIT 0
 
 
 #include <chrono>
@@ -47,7 +51,7 @@ struct Vector2D
    double y{};
 };
 
-Vector2D operator+( const Vector2D& a, const Vector2D& b )
+Vector2D operator+( Vector2D const& a, Vector2D const& b )
 {
    return Vector2D{ a.x+b.x, a.y+b.y };
 }
@@ -68,7 +72,13 @@ namespace enum_solution {
       square,
 #endif
 #if BENCHMARK_WITH_RECTANGLE
-      rectangle
+      rectangle,
+#endif
+#if BENCHMARK_WITH_PENTAGON
+      pentagon,
+#endif
+#if BENCHMARK_WITH_HEXAGON
+      hexagon
 #endif
    };
 
@@ -79,10 +89,10 @@ namespace enum_solution {
       {}
 
       Shape() = default;
-      Shape( const Shape& ) = default;
+      Shape( Shape const& ) = default;
       Shape( Shape&& ) = default;
       virtual ~Shape() = default;
-      Shape& operator=( const Shape& ) = default;
+      Shape& operator=( Shape const& ) = default;
       Shape& operator=( Shape&& ) = default;
 
       ShapeType type{};
@@ -101,7 +111,7 @@ namespace enum_solution {
       Vector2D center{};
    };
 
-   void translate( Circle& c, const Vector2D& v )
+   void translate( Circle& c, Vector2D const& v )
    {
       c.center = c.center + v;
    }
@@ -122,7 +132,7 @@ namespace enum_solution {
       Vector2D center{};
    };
 
-   void translate( Ellipse& e, const Vector2D& v )
+   void translate( Ellipse& e, Vector2D const& v )
    {
       e.center = e.center + v;
    }
@@ -141,7 +151,7 @@ namespace enum_solution {
       Vector2D center{};
    };
 
-   void translate( Square& s, const Vector2D& v )
+   void translate( Square& s, Vector2D const& v )
    {
       s.center = s.center + v;
    }
@@ -162,18 +172,56 @@ namespace enum_solution {
       Vector2D center{};
    };
 
-   void translate( Rectangle& r, const Vector2D& v )
+   void translate( Rectangle& r, Vector2D const& v )
    {
       r.center = r.center + v;
    }
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      explicit Pentagon( double s )
+         : Shape{ pentagon }
+         , side{ s }
+      {}
+
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Pentagon& p, Vector2D const& v )
+   {
+      p.center = p.center + v;
+   }
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      explicit Hexagon( double s )
+         : Shape{ hexagon }
+         , side{ s }
+      {}
+
+      double side{};
+      Vector2D center{};
+   };
+
+   void translate( Hexagon& h, Vector2D const& v )
+   {
+      h.center = h.center + v;
+   }
+#endif
+
+
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
-      for( const auto& s : shapes )
+      for( auto const& s : shapes )
       {
          switch ( s->type )
          {
@@ -197,6 +245,16 @@ namespace enum_solution {
                translate( static_cast<Rectangle&>( *s.get() ), v );
                break;
 #endif
+#if BENCHMARK_WITH_PENTAGON
+            case pentagon:
+               translate( static_cast<Pentagon&>( *s.get() ), v );
+               break;
+#endif
+#if BENCHMARK_WITH_HEXAGON
+            case hexagon:
+               translate( static_cast<Hexagon&>( *s.get() ), v );
+               break;
+#endif
          }
       }
    }
@@ -210,14 +268,8 @@ namespace object_oriented_solution {
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() {}
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void translate( const Vector2D& v ) = 0;
+      virtual void translate( Vector2D const& v ) = 0;
    };
 
 
@@ -228,7 +280,7 @@ namespace object_oriented_solution {
          : radius{ r }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -247,7 +299,7 @@ namespace object_oriented_solution {
          , radius2{ r2 }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -266,7 +318,7 @@ namespace object_oriented_solution {
          : side{ s }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -285,7 +337,7 @@ namespace object_oriented_solution {
          , height{ h }
       {}
 
-      void translate( const Vector2D& v ) override
+      void translate( Vector2D const& v ) override
       {
          center = center + v;
       }
@@ -297,11 +349,47 @@ namespace object_oriented_solution {
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      explicit Pentagon( double s )
+         : side{ s }
+      {}
+
+      void translate( Vector2D const& v ) override
+      {
+         center = center + v;
+      }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      explicit Hexagon( double s )
+         : side{ s }
+      {}
+
+      void translate( Vector2D const& v ) override
+      {
+         center = center + v;
+      }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
-      for( const auto& s : shapes )
+      for( auto const& s : shapes )
       {
          s->translate( v );
       }
@@ -326,16 +414,17 @@ namespace cyclic_visitor_solution {
 #if BENCHMARK_WITH_RECTANGLE
    struct Rectangle;
 #endif
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon;
+#endif
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon;
+#endif
 
 
    struct Visitor
    {
-      Visitor() = default;
-      Visitor( const Visitor& ) = default;
-      Visitor( Visitor&& ) = default;
       virtual ~Visitor() = default;
-      Visitor& operator=( const Visitor& ) = default;
-      Visitor& operator=( Visitor&& ) = default;
 
 #if BENCHMARK_WITH_CIRCLE
       virtual void visit( Circle& ) const = 0;
@@ -349,19 +438,19 @@ namespace cyclic_visitor_solution {
 #if BENCHMARK_WITH_RECTANGLE
       virtual void visit( Rectangle& ) const = 0;
 #endif
+#if BENCHMARK_WITH_PENTAGON
+      virtual void visit( Pentagon& ) const = 0;
+#endif
+#if BENCHMARK_WITH_HEXAGON
+      virtual void visit( Hexagon& ) const = 0;
+#endif
    };
 
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() {}
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void accept( const Visitor& v ) = 0;
+      virtual void accept( Visitor const& v ) = 0;
    };
 
 
@@ -372,7 +461,7 @@ namespace cyclic_visitor_solution {
          : radius{ r }
       {}
 
-      void accept( const Visitor& v ) override { v.visit(*this); }
+      void accept( Visitor const& v ) override { v.visit(*this); }
 
       double radius{};
       Vector2D center{};
@@ -388,7 +477,7 @@ namespace cyclic_visitor_solution {
          , radius2{ r2 }
       {}
 
-      void accept( const Visitor& v ) override { v.visit(*this); }
+      void accept( Visitor const& v ) override { v.visit(*this); }
 
       double radius1{};
       double radius2{};
@@ -404,7 +493,7 @@ namespace cyclic_visitor_solution {
          : side{ s }
       {}
 
-      void accept( const Visitor& v ) override { v.visit(*this); }
+      void accept( Visitor const& v ) override { v.visit(*this); }
 
       double side{};
       Vector2D center{};
@@ -420,7 +509,7 @@ namespace cyclic_visitor_solution {
          , height{ h }
       {}
 
-      void accept( const Visitor& v ) override { v.visit(*this); }
+      void accept( Visitor const& v ) override { v.visit(*this); }
 
       double width{};
       double height{};
@@ -429,9 +518,39 @@ namespace cyclic_visitor_solution {
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      explicit Pentagon( double s )
+         : side{ s }
+      {}
+
+      void accept( Visitor const& v ) override { v.visit(*this); }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      explicit Hexagon( double s )
+         : side{ s }
+      {}
+
+      void accept( Visitor const& v ) override { v.visit(*this); }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
    struct Translate : public Visitor
    {
-      Translate( const Vector2D& vec ) : v{ vec } {}
+      Translate( Vector2D const& vec ) : v{ vec } {}
 #if BENCHMARK_WITH_CIRCLE
       void visit( Circle& c ) const override { c.center = c.center + v; }
 #endif
@@ -444,13 +563,19 @@ namespace cyclic_visitor_solution {
 #if BENCHMARK_WITH_RECTANGLE
       void visit( Rectangle& r ) const override { r.center = r.center + v; }
 #endif
+#if BENCHMARK_WITH_PENTAGON
+      void visit( Pentagon& p ) const override { p.center = p.center + v; }
+#endif
+#if BENCHMARK_WITH_HEXAGON
+      void visit( Hexagon& h ) const override { h.center = h.center + v; }
+#endif
       Vector2D v{};
    };
 
 
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes const& shapes, const Vector2D& v )
+   void translate( Shapes const& shapes, Vector2D const& v )
    {
       for( auto const& shape : shapes )
       {
@@ -477,42 +602,31 @@ namespace acyclic_visitor_solution {
 #if BENCHMARK_WITH_RECTANGLE
    struct Rectangle;
 #endif
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon;
+#endif
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon;
+#endif
 
 
    struct AbstractVisitor
    {
-      AbstractVisitor() = default;
-      AbstractVisitor( const AbstractVisitor& ) = default;
-      AbstractVisitor( AbstractVisitor&& ) = default;
       virtual ~AbstractVisitor() = default;
-      AbstractVisitor& operator=( const AbstractVisitor& ) = default;
-      AbstractVisitor& operator=( AbstractVisitor&& ) = default;
    };
 
 
    struct Shape
    {
-      Shape() = default;
-      Shape( const Shape& ) = default;
-      Shape( Shape&& ) = default;
       virtual ~Shape() {}
-      Shape& operator=( const Shape& ) = default;
-      Shape& operator=( Shape&& ) = default;
-
-      virtual void accept( const AbstractVisitor& v ) = 0;
+      virtual void accept( AbstractVisitor const& v ) = 0;
    };
 
 
    template< typename T >
    struct Visitor
    {
-      Visitor() = default;
-      Visitor( const Visitor& ) = default;
-      Visitor( Visitor&& ) = default;
       virtual ~Visitor() = default;
-      Visitor& operator=( const Visitor& ) = default;
-      Visitor& operator=( Visitor&& ) = default;
-
       virtual void visit( T& ) const = 0;
    };
 
@@ -524,8 +638,8 @@ namespace acyclic_visitor_solution {
          : radius{ r }
       {}
 
-      void accept( const AbstractVisitor& v ) override {
-         if( auto cv = dynamic_cast<const Visitor<Circle>*>(&v) ) {
+      void accept( AbstractVisitor const& v ) override {
+         if( auto cv = dynamic_cast<Visitor<Circle> const*>(&v) ) {
             cv->visit(*this);
          }
       }
@@ -544,8 +658,8 @@ namespace acyclic_visitor_solution {
          , radius2{ r2 }
       {}
 
-      void accept( const AbstractVisitor& v ) override {
-         if( auto ev = dynamic_cast<const Visitor<Ellipse>*>(&v) ) {
+      void accept( AbstractVisitor const& v ) override {
+         if( auto ev = dynamic_cast<Visitor<Ellipse> const*>(&v) ) {
             ev->visit(*this);
          }
       }
@@ -564,8 +678,8 @@ namespace acyclic_visitor_solution {
          : side{ s }
       {}
 
-      void accept( const AbstractVisitor& v ) override {
-         if( auto sv = dynamic_cast<const Visitor<Square>*>(&v) ) {
+      void accept( AbstractVisitor const& v ) override {
+         if( auto sv = dynamic_cast<Visitor<Square> const*>(&v) ) {
             sv->visit(*this);
          }
       }
@@ -584,14 +698,52 @@ namespace acyclic_visitor_solution {
          , height{ h }
       {}
 
-      void accept( const AbstractVisitor& v ) override {
-         if( auto rv = dynamic_cast<const Visitor<Rectangle>*>(&v) ) {
+      void accept( AbstractVisitor const& v ) override {
+         if( auto rv = dynamic_cast<Visitor<Rectangle> const*>(&v) ) {
             rv->visit(*this);
          }
       }
 
       double width{};
       double height{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon : public Shape
+   {
+      explicit Pentagon( double s )
+         : side{ s }
+      {}
+
+      void accept( AbstractVisitor const& v ) override {
+         if( auto sv = dynamic_cast<Visitor<Pentagon> const*>(&v) ) {
+            sv->visit(*this);
+         }
+      }
+
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon : public Shape
+   {
+      explicit Hexagon( double s )
+         : side{ s }
+      {}
+
+      void accept( AbstractVisitor const& v ) override {
+         if( auto sv = dynamic_cast<Visitor<Hexagon> const*>(&v) ) {
+            sv->visit(*this);
+         }
+      }
+
+      double side{};
       Vector2D center{};
    };
 #endif
@@ -610,8 +762,14 @@ namespace acyclic_visitor_solution {
 #if BENCHMARK_WITH_RECTANGLE
                     , public Visitor<Rectangle>
 #endif
+#if BENCHMARK_WITH_PENTAGON
+                    , public Visitor<Pentagon>
+#endif
+#if BENCHMARK_WITH_HEXAGON
+                    , public Visitor<Hexagon>
+#endif
    {
-      Translate( const Vector2D& vec ) : v{ vec } {}
+      Translate( Vector2D const& vec ) : v{ vec } {}
 #if BENCHMARK_WITH_CIRCLE
       void visit( Circle& c ) const override { c.center = c.center + v; }
 #endif
@@ -624,13 +782,19 @@ namespace acyclic_visitor_solution {
 #if BENCHMARK_WITH_RECTANGLE
       void visit( Rectangle& r ) const override { r.center = r.center + v; }
 #endif
+#if BENCHMARK_WITH_PENTAGON
+      void visit( Pentagon& p ) const override { p.center = p.center + v; }
+#endif
+#if BENCHMARK_WITH_HEXAGON
+      void visit( Hexagon& h ) const override { h.center = h.center + v; }
+#endif
       Vector2D v{};
    };
 
 
    using Shapes = std::vector< std::unique_ptr<Shape> >;
 
-   void translate( Shapes const& shapes, const Vector2D& v )
+   void translate( Shapes const& shapes, Vector2D const& v )
    {
       for( auto const& shape : shapes )
       {
@@ -683,6 +847,24 @@ namespace std_variant_solution {
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
    using Shape = std::variant<
 #if BENCHMARK_WITH_CIRCLE
       Circle
@@ -702,6 +884,16 @@ namespace std_variant_solution {
 #elif BENCHMARK_WITH_RECTANGLE
       Rectangle
 #endif
+#if ( BENCHMARK_WITH_CIRCLE || BENCHMARK_WITH_ELLIPSE || BENCHMARK_WITH_SQUARE || BENCHMARK_WITH_RECTANGLE ) && BENCHMARK_WITH_PENTAGON
+      ,Pentagon
+#elif BENCHMARK_WITH_PENTAGON
+      Pentagon
+#endif
+#if ( BENCHMARK_WITH_CIRCLE || BENCHMARK_WITH_ELLIPSE || BENCHMARK_WITH_SQUARE || BENCHMARK_WITH_RECTANGLE || BENCHMARK_WITH_PENTAGON ) && BENCHMARK_WITH_HEXAGON
+      ,Hexagon
+#elif BENCHMARK_WITH_HEXAGON
+      Hexagon
+#endif
       >;
 
 
@@ -719,37 +911,55 @@ namespace std_variant_solution {
 #if BENCHMARK_WITH_RECTANGLE
       void operator()( Rectangle& r ) const { r.center = r.center + v; }
 #endif
+#if BENCHMARK_WITH_PENTAGON
+   void operator()( Pentagon& p ) const { p.center = p.center + v; }
+#endif
+#if BENCHMARK_WITH_HEXAGON
+   void operator()( Hexagon& h ) const { h.center = h.center + v; }
+#endif
       Vector2D v{};
    };
 
-   void translate( Shape& s, const Vector2D& v )
+   void translate( Shape& s, Vector2D const& v )
    {
-      /*
-#if BENCHMARK_WITH_CIRCLE
+#if BENCHMARK_MANUAL_VISIT
+#  if BENCHMARK_WITH_CIRCLE
       if( Circle* circle = std::get_if<Circle>(&s) ) {
          circle->center = circle->center + v;
          return;
       }
-#endif
-#if BENCHMARK_WITH_ELLIPSE
+#  endif
+#  if BENCHMARK_WITH_ELLIPSE
       if( Ellipse* ellipse = std::get_if<Ellipse>(&s) ) {
          ellipse->center = ellipse->center + v;
          return;
       }
-#endif
-#if BENCHMARK_WITH_SQUARE
+#  endif
+#  if BENCHMARK_WITH_SQUARE
       if( Square* square = std::get_if<Square>(&s) ) {
          square->center = square->center + v;
          return;
       }
-#endif
-#if BENCHMARK_WITH_RECTANGLE
+#  endif
+#  if BENCHMARK_WITH_RECTANGLE
       if( Rectangle* rectangle = std::get_if<Rectangle>(&s) ) {
          rectangle->center = rectangle->center + v;
          return;
       }
+#  endif
+#  if BENCHMARK_WITH_PENTAGON
+      if( Pentagon* pentagon = std::get_if<Pentagon>(&s) ) {
+         pentagon->center = pentagon->center + v;
+         return;
+      }
+#  endif
+#  if BENCHMARK_WITH_HEXAGON
+      if( Hexagon* hexagon = std::get_if<Hexagon>(&s) ) {
+         hexagon->center = hexagon->center + v;
+         return;
+      }
+#  endif
 #endif
-      */
 
       std::visit( Translate{ v }, s );
    }
@@ -757,7 +967,7 @@ namespace std_variant_solution {
 
    using Shapes = std::vector<Shape>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -810,6 +1020,24 @@ namespace mpark_variant_solution {
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
    using Shape = mpark::variant<
 #if BENCHMARK_WITH_CIRCLE
       Circle
@@ -829,6 +1057,16 @@ namespace mpark_variant_solution {
 #elif BENCHMARK_WITH_RECTANGLE
       Rectangle
 #endif
+#if ( BENCHMARK_WITH_CIRCLE || BENCHMARK_WITH_ELLIPSE || BENCHMARK_WITH_SQUARE || BENCHMARK_WITH_RECTANGLE ) && BENCHMARK_WITH_PENTAGON
+      ,Pentagon
+#elif BENCHMARK_WITH_PENTAGON
+      Pentagon
+#endif
+#if ( BENCHMARK_WITH_CIRCLE || BENCHMARK_WITH_ELLIPSE || BENCHMARK_WITH_SQUARE || BENCHMARK_WITH_RECTANGLE || BENCHMARK_WITH_PENTAGON ) && BENCHMARK_WITH_HEXAGON
+      ,Hexagon
+#elif BENCHMARK_WITH_HEXAGON
+      Hexagon
+#endif
       >;
 
 
@@ -846,18 +1084,63 @@ namespace mpark_variant_solution {
 #if BENCHMARK_WITH_RECTANGLE
       void operator()( Rectangle& r ) const { r.center = r.center + v; }
 #endif
+#if BENCHMARK_WITH_PENTAGON
+      void operator()( Pentagon& p ) const { p.center = p.center + v; }
+#endif
+#if BENCHMARK_WITH_HEXAGON
+      void operator()( Hexagon& h ) const { h.center = h.center + v; }
+#endif
       Vector2D v{};
    };
 
-   void translate( Shape& s, const Vector2D& v )
+   void translate( Shape& s, Vector2D const& v )
    {
+#if BENCHMARK_MANUAL_VISIT
+#if   BENCHMARK_WITH_CIRCLE
+      if( Circle* circle = mpark::get_if<Circle>(&s) ) {
+         circle->center = circle->center + v;
+         return;
+      }
+#  endif
+#  if BENCHMARK_WITH_ELLIPSE
+      if( Ellipse* ellipse = mpark::get_if<Ellipse>(&s) ) {
+         ellipse->center = ellipse->center + v;
+         return;
+      }
+#  endif
+#  if BENCHMARK_WITH_SQUARE
+      if( Square* square = mpark::get_if<Square>(&s) ) {
+         square->center = square->center + v;
+         return;
+      }
+#  endif
+#  if BENCHMARK_WITH_RECTANGLE
+      if( Rectangle* rectangle = mpark::get_if<Rectangle>(&s) ) {
+         rectangle->center = rectangle->center + v;
+         return;
+      }
+#  endif
+#  if BENCHMARK_WITH_PENTAGON
+      if( Pentagon* pentagon = mpark::get_if<Pentagon>(&s) ) {
+         pentagon->center = pentagon->center + v;
+         return;
+      }
+#  endif
+#  if BENCHMARK_WITH_HEXAGON
+      if( Hexagon* hexagon = mpark::get_if<Hexagon>(&s) ) {
+         hexagon->center = hexagon->center + v;
+         return;
+      }
+#  endif
+#endif
+
       mpark::visit( Translate{ v }, s );
    }
 
 
    using Shapes = std::vector<Shape>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -910,6 +1193,24 @@ namespace boost_variant_solution {
 #endif
 
 
+#if BENCHMARK_WITH_PENTAGON
+   struct Pentagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
+#if BENCHMARK_WITH_HEXAGON
+   struct Hexagon
+   {
+      double side{};
+      Vector2D center{};
+   };
+#endif
+
+
    using Shape = boost::variant<
 #if BENCHMARK_WITH_CIRCLE
       Circle
@@ -929,6 +1230,16 @@ namespace boost_variant_solution {
 #elif BENCHMARK_WITH_RECTANGLE
       Rectangle
 #endif
+#if ( BENCHMARK_WITH_CIRCLE || BENCHMARK_WITH_ELLIPSE || BENCHMARK_WITH_SQUARE || BENCHMARK_WITH_RECTANGLE ) && BENCHMARK_WITH_PENTAGON
+      ,Pentagon
+#elif BENCHMARK_WITH_PENTAGON
+      Pentagon
+#endif
+#if ( BENCHMARK_WITH_CIRCLE || BENCHMARK_WITH_ELLIPSE || BENCHMARK_WITH_SQUARE || BENCHMARK_WITH_RECTANGLE || BENCHMARK_WITH_PENTAGON ) && BENCHMARK_WITH_HEXAGON
+      ,Hexagon
+#elif BENCHMARK_WITH_HEXAGON
+      Hexagon
+#endif
       >;
 
 
@@ -946,10 +1257,16 @@ namespace boost_variant_solution {
 #if BENCHMARK_WITH_RECTANGLE
       void operator()( Rectangle& r ) const { r.center = r.center + v; }
 #endif
+#if BENCHMARK_WITH_PENTAGON
+      void operator()( Pentagon& p ) const { p.center = p.center + v; }
+#endif
+#if BENCHMARK_WITH_HEXAGON
+      void operator()( Hexagon& h ) const { h.center = h.center + v; }
+#endif
       Vector2D v{};
    };
 
-   void translate( Shape& s, const Vector2D& v )
+   void translate( Shape& s, Vector2D const& v )
    {
       boost::apply_visitor( Translate{ v }, s );
    }
@@ -957,7 +1274,7 @@ namespace boost_variant_solution {
 
    using Shapes = std::vector<Shape>;
 
-   void translate( Shapes& shapes, const Vector2D& v )
+   void translate( Shapes& shapes, Vector2D const& v )
    {
       for( auto& shape : shapes )
       {
@@ -975,10 +1292,11 @@ int main()
    constexpr size_t steps( 25000UL );
 
    std::random_device rd{};
-   const unsigned int seed( rd() );
+   unsigned int const seed( rd() );
 
    std::mt19937 rng{};
-   std::uniform_real_distribution<double> dist( 0.0, 1.0 );
+   std::uniform_int_distribution<int> int_dist( 1, 6 );
+   std::uniform_real_distribution<double> real_dist( 0.0, 1.0 );
 
    std::cout << std::endl;
 
@@ -992,26 +1310,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng) ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng) ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng) ) );
 #endif
          }
       }
@@ -1020,12 +1348,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Enum solution runtime           : " << seconds << "s\n";
    }
@@ -1041,26 +1369,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng) ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng) ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng) ) );
 #endif
          }
       }
@@ -1069,12 +1407,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " OO solution runtime             : " << seconds << "s\n";
    }
@@ -1090,26 +1428,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng) ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng) ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng) ) );
 #endif
          }
       }
@@ -1118,12 +1466,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Cyclic visitor solution runtime : " << seconds << "s\n";
    }
@@ -1139,26 +1487,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( std::make_unique<Circle>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Circle>( real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.5 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( std::make_unique<Ellipse>( dist(rng), dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Ellipse>( real_dist(rng), real_dist(rng) ) );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( std::make_unique<Square>( dist(rng) ) );
+            shapes.emplace_back( std::make_unique<Square>( real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( std::make_unique<Rectangle>( real_dist(rng), real_dist(rng) ) );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( std::make_unique<Pentagon>( real_dist(rng) ) );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( std::make_unique<Rectangle>( dist(rng), dist(rng) ) );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( std::make_unique<Hexagon>( real_dist(rng) ) );
 #endif
          }
       }
@@ -1167,12 +1525,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " Acyclic visitor solution runtime: " << seconds << "s\n";
    }
@@ -1188,26 +1546,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.25 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1216,12 +1584,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " std::variant solution runtime   : " << seconds << "s\n";
    }
@@ -1237,26 +1605,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.25 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1265,12 +1643,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " mpark::variant solution runtime : " << seconds << "s\n";
    }
@@ -1286,26 +1664,36 @@ int main()
 
       while( shapes.size() < N )
       {
-         const double r( dist(rng) );
+         int const random_value( int_dist(rng) );
 
-         if( r < 0.25 ) {
+         if( random_value == 1 ) {
 #if BENCHMARK_WITH_CIRCLE
-            shapes.emplace_back( Circle{ dist(rng) } );
+            shapes.emplace_back( Circle{ real_dist(rng) } );
 #endif
          }
-         else if( r < 0.25 ) {
+         else if( random_value == 2 ) {
 #if BENCHMARK_WITH_ELLIPSE
-            shapes.emplace_back( Ellipse{ dist(rng), dist(rng) } );
+            shapes.emplace_back( Ellipse{ real_dist(rng), real_dist(rng) } );
 #endif
          }
-         else if( r < 0.75 ) {
+         else if( random_value == 3 ) {
 #if BENCHMARK_WITH_SQUARE
-            shapes.emplace_back( Square{ dist(rng) } );
+            shapes.emplace_back( Square{ real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 4 ) {
+#if BENCHMARK_WITH_RECTANGLE
+            shapes.emplace_back( Rectangle{ real_dist(rng), real_dist(rng) } );
+#endif
+         }
+         else if( random_value == 5 ) {
+#if BENCHMARK_WITH_PENTAGON
+            shapes.emplace_back( Pentagon{ real_dist(rng) } );
 #endif
          }
          else {
-#if BENCHMARK_WITH_RECTANGLE
-            shapes.emplace_back( Rectangle{ dist(rng), dist(rng) } );
+#if BENCHMARK_WITH_HEXAGON
+            shapes.emplace_back( Hexagon{ real_dist(rng) } );
 #endif
          }
       }
@@ -1314,12 +1702,12 @@ int main()
       start = std::chrono::high_resolution_clock::now();
 
       for( size_t s=0UL; s<steps; ++s ) {
-         translate( shapes, Vector2D{ dist(rng), dist(rng) } );
+         translate( shapes, Vector2D{ real_dist(rng), real_dist(rng) } );
       }
 
       end = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsedTime( end - start );
-      const double seconds( elapsedTime.count() );
+      std::chrono::duration<double> const elapsedTime( end - start );
+      double const seconds( elapsedTime.count() );
 
       std::cout << " boost::variant solution runtime : " << seconds << "s\n";
    }

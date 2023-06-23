@@ -2,7 +2,7 @@
 #
 #  Makefile for the chapter "C++ Software Design" of the C++ Training
 #
-#  Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+#  Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 #
 #  This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 #  context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -21,24 +21,40 @@ BIN = $(SRC:.cpp=)
 
 
 # Rules
-default: AcyclicVisitor Adapter Any Bridge Car_Bridge Car_Strategy Decorator_Creature \
-         Decorator_Item ExternalPolymorphism Function1 Function2 Function_Ref \
-         InplaceAny InplaceFunction ObjectOriented PolymorphicAllocator Procedural \
-         Prototype Strategy Strategy_Benchmark Strategy_Benchmark_Full TypeErasure \
-         TypeErasure_Ref UniquePtr_TypeErasure Variant Visitor Visitor_Benchmark \
-         Visitor_Benchmark_Full
+default: AcyclicVisitor Adapter_1 Adapter_2 Adapter_3 Any_1 Any_2 Bridge \
+         Calculator_Command Calculator_Strategy Car_Bridge Car_Strategy Command \
+         ExternalAnimal ExternalPolymorphism FastPimpl Function_1 Function_2 \
+         Function_Ref InplaceAny InplaceFunction ObjectOriented PolymorphicAllocator \
+         Procedural Prototype Strategy Strategy_Benchmark TypeErasure TypeErasure_MVF \
+         TypeErasure_Ref TypeErasure_SBO UniquePtr_TypeErasure Variant Visitor \
+         Visitor_Benchmark
 
 AcyclicVisitor: AcyclicVisitor.cpp
 	$(CXX) $(CXXFLAGS) -o AcyclicVisitor AcyclicVisitor.cpp
 
-Adapter: Adapter.cpp
-	$(CXX) $(CXXFLAGS) -o Adapter Adapter.cpp
+Adapter_1: Adapter_1.cpp
+	$(CXX) $(CXXFLAGS) -o Adapter_1 Adapter_1.cpp
 
-Any: Any.cpp
-	$(CXX) $(CXXFLAGS) -o Any Any.cpp
+Adapter_2: Adapter_2.cpp
+	$(CXX) $(CXXFLAGS) -o Adapter_2 Adapter_2.cpp
+
+Adapter_3: Adapter_3.cpp
+	$(CXX) $(CXXFLAGS) -o Adapter_3 Adapter_3.cpp
+
+Any_1: Any_1.cpp
+	$(CXX) $(CXXFLAGS) -o Any_1 Any_1.cpp
+
+Any_2: Any_2.cpp
+	$(CXX) $(CXXFLAGS) -o Any_2 Any_2.cpp
 
 Bridge: Bridge.cpp
 	$(CXX) $(CXXFLAGS) -o Bridge Bridge.cpp
+
+Calculator_Command: Calculator_Command.cpp
+	$(CXX) $(CXXFLAGS) -o Calculator_Command Calculator_Command.cpp
+
+Calculator_Strategy: Calculator_Strategy.cpp
+	$(CXX) $(CXXFLAGS) -o Calculator_Strategy Calculator_Strategy.cpp
 
 Car_Bridge: Car_Bridge.cpp
 	$(CXX) $(CXXFLAGS) -o Car_Bridge Car_Bridge.cpp
@@ -46,20 +62,23 @@ Car_Bridge: Car_Bridge.cpp
 Car_Strategy: Car_Strategy.cpp
 	$(CXX) $(CXXFLAGS) -o Car_Strategy Car_Strategy.cpp
 
-Decorator_Creature: Decorator_Creature.cpp
-	$(CXX) $(CXXFLAGS) -o Decorator_Creature Decorator_Creature.cpp
+Command: Command.cpp
+	$(CXX) $(CXXFLAGS) -o Command Command.cpp
 
-Decorator_Item: Decorator_Item.cpp
-	$(CXX) $(CXXFLAGS) -o Decorator_Item Decorator_Item.cpp
+ExternalAnimal: ExternalAnimal.cpp
+	$(CXX) $(CXXFLAGS) -o ExternalAnimal ExternalAnimal.cpp
 
 ExternalPolymorphism: ExternalPolymorphism.cpp
 	$(CXX) $(CXXFLAGS) -o ExternalPolymorphism ExternalPolymorphism.cpp
 
-Function1: Function1.cpp
-	$(CXX) $(CXXFLAGS) -o Function1 Function1.cpp
+FastPimpl: FastPimpl.cpp
+	$(CXX) $(CXXFLAGS) -o FastPimpl FastPimpl.cpp
 
-Function2: Function2.cpp
-	$(CXX) $(CXXFLAGS) -o Function2 Function2.cpp
+Function_1: Function_1.cpp
+	$(CXX) $(CXXFLAGS) -o Function_1 Function_1.cpp
+
+Function_2: Function_2.cpp
+	$(CXX) $(CXXFLAGS) -o Function_2 Function_2.cpp
 
 Function_Ref: Function_Ref.cpp
 	$(CXX) $(CXXFLAGS) -o Function_Ref Function_Ref.cpp
@@ -72,6 +91,9 @@ InplaceFunction: InplaceFunction.cpp
 
 ObjectOriented: ObjectOriented.cpp
 	$(CXX) $(CXXFLAGS) -o ObjectOriented ObjectOriented.cpp
+
+Persistence: Persistence.cpp
+	$(CXX) $(CXXFLAGS) -o Persistence Persistence.cpp
 
 PolymorphicAllocator: PolymorphicAllocator.cpp
 	$(CXX) $(CXXFLAGS) -o PolymorphicAllocator PolymorphicAllocator.cpp
@@ -88,14 +110,17 @@ Strategy: Strategy.cpp
 Strategy_Benchmark: Strategy_Benchmark.cpp
 	$(CXX) $(CXXFLAGS) -o Strategy_Benchmark Strategy_Benchmark.cpp
 
-Strategy_Benchmark_Full: Strategy_Benchmark_Full.cpp
-	$(CXX) $(CXXFLAGS) -o Strategy_Benchmark_Full Strategy_Benchmark_Full.cpp
-
 TypeErasure: TypeErasure.cpp
 	$(CXX) $(CXXFLAGS) -o TypeErasure TypeErasure.cpp
 
+TypeErasure_MVF: TypeErasure_MVF.cpp
+	$(CXX) $(CXXFLAGS) -o TypeErasure_MVF TypeErasure_MVF.cpp
+
 TypeErasure_Ref: TypeErasure_Ref.cpp
 	$(CXX) $(CXXFLAGS) -o TypeErasure_Ref TypeErasure_Ref.cpp
+
+TypeErasure_SBO: TypeErasure_SBO.cpp
+	$(CXX) $(CXXFLAGS) -o TypeErasure_SBO TypeErasure_SBO.cpp
 
 UniquePtr_TypeErasure: UniquePtr_TypeErasure.cpp
 	$(CXX) $(CXXFLAGS) -o UniquePtr_TypeErasure UniquePtr_TypeErasure.cpp
@@ -108,9 +133,6 @@ Visitor: Visitor.cpp
 
 Visitor_Benchmark: Visitor_Benchmark.cpp
 	$(CXX) $(CXXFLAGS) -o Visitor_Benchmark Visitor_Benchmark.cpp
-
-Visitor_Benchmark_Full: Visitor_Benchmark_Full.cpp
-	$(CXX) $(CXXFLAGS) -o Visitor_Benchmark_Full Visitor_Benchmark_Full.cpp
 
 clean:
 	@$(RM) $(BIN)

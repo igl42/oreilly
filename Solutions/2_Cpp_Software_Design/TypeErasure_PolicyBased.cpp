@@ -3,13 +3,14 @@
 * \file TypeErasure_PolicyBased.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
-* Task: Implement the 'Shape' class by means of Type Erasure. 'Shape' may require all types to
-*       provide a free 'draw()' function that draws them to the screen.
+* Task: Implement the 'Shape' class by means of Type Erasure. Use Policy-based Design to let
+*       users decide about the memory allocation scheme. 'Shape' may require all types to
+*       provide a 'free_draw()' function that draws them to the screen.
 *
 **************************************************************************************************/
 
@@ -168,7 +169,7 @@ class Shape
    }
 
  private:
-   friend void draw( Shape const& other )
+   friend void free_draw( Shape const& other )
    {
       other.pimpl_->do_draw();
    }
@@ -186,7 +187,7 @@ class Shape
    {
       explicit Model( ShapeT const& shape ) : shape_( shape ) {}
 
-      void do_draw() const override { draw( shape_ ); }
+      void do_draw() const override { free_draw( shape_ ); }
 
       Concept* clone( StoragePolicy const& policy ) const override
       {
@@ -281,8 +282,8 @@ class Square
 class Circle;
 class Square;
 
-void draw( Circle const& circle );
-void draw( Square const& square );
+void free_draw( Circle const& circle );
+void free_draw( Square const& square );
 
 
 //---- <DrawSquare.cpp> ---------------------------------------------------------------------------
@@ -292,12 +293,12 @@ void draw( Square const& square );
 //#include <Square.h>
 #include <iostream>
 
-void draw( Circle const& circle )
+void free_draw( Circle const& circle )
 {
    std::cout << "circle: radius=" << circle.radius() << std::endl;
 }
 
-void draw( Square const& square )
+void free_draw( Square const& square )
 {
    std::cout << "square: side=" << square.side() << std::endl;
 }
@@ -327,7 +328,7 @@ void drawAllShapes( Shapes const& shapes )
 {
    for( auto const& shape : shapes )
    {
-      draw( shape );
+      free_draw( shape );
    }
 }
 

@@ -3,7 +3,7 @@
 * \file TypeErasure_dyno.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -34,7 +34,7 @@ struct ShapeConcept : decltype( dyno::requires_(
 
 template <typename T>
 auto const dyno::default_concept_map<ShapeConcept, T> = dyno::make_concept_map(
-   "draw"_s = []( const T& self ) { draw( self ); }
+   "draw"_s = []( const T& self ) { free_draw( self ); }
 );
 
 class Shape
@@ -50,7 +50,7 @@ class Shape
    dyno::poly<ShapeConcept> poly_;
 };
 
-void draw( const Shape& shape )
+void free_draw( const Shape& shape )
 {
    shape.draw();
 }
@@ -62,7 +62,7 @@ void drawAllShapes( const Shapes& shapes )
 {
    for( const auto& shape : shapes )
    {
-      draw( shape );
+      free_draw( shape );
    }
 }
 
@@ -72,7 +72,7 @@ struct Circle
    double radius;
 };
 
-void draw( const Circle& circle )
+void free_draw( const Circle& circle )
 {
    std::cout << "circle: radius=" << circle.radius << '\n';
 }
@@ -83,7 +83,7 @@ struct Square
    double side;
 };
 
-void draw( const Square& square )
+void free_draw( const Square& square )
 {
    std::cout << "square: side=" << square.side << '\n';
 }

@@ -3,13 +3,13 @@
 * \file TypeErasure.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
 * Task: Implement the 'Shape' class by means of Type Erasure. 'Shape' may require all types to
-*       provide a free 'draw()' function that draws them to the screen.
+*       provide a 'free_draw()' function that draws them to the screen.
 *
 **************************************************************************************************/
 
@@ -61,7 +61,7 @@ class Shape
    // TODO: Implement the 'Shape' class by means of Type Erasure.
 };
 
-void draw( Shape const& shape )
+void free_draw( Shape const& shape )
 {
    // TODO: Implement the 'draw()' function
 }
@@ -76,12 +76,15 @@ class Circle
  public:
    explicit Circle( double radius )
       : radius_( radius )
+      , center_()
    {}
 
    double radius() const { return radius_; }
+   Point  center() const { return center_; }
 
  private:
    double radius_;
+   Point center_;
 };
 
 
@@ -94,12 +97,15 @@ class Square
  public:
    explicit Square( double side )
       : side_( side )
+      , center_()
    {}
 
    double side() const { return side_; }
+   Point center() const { return center_; }
 
  private:
    double side_;
+   Point center_;
 };
 
 
@@ -108,8 +114,8 @@ class Square
 class Circle;
 class Square;
 
-void draw( Circle const& circle );
-void draw( Square const& square );
+void free_draw( Circle const& circle );
+void free_draw( Square const& square );
 
 
 //---- <Draw.cpp> ---------------------------------------------------------------------------------
@@ -120,18 +126,47 @@ void draw( Square const& square );
 //#include <GraphicsLibrary.h>
 #include <iostream>
 
-void draw( Circle const& circle )
+void free_draw( Circle const& circle )
 {
    std::cout << "circle: radius=" << circle.radius() << std::endl;
 }
 
-void draw( Square const& square )
+void free_draw( Square const& square )
 {
    std::cout << "square: side=" << square.side() << std::endl;
 }
 
 
-//---- <DrawAllShapes.h> --------------------------------------------------------------------------
+//---- <TestDrawStrategy.h> -----------------------------------------------------------------------
+
+//#include <Circle.h>
+//#include <Square.h>
+//#include <GraphicsLibrary.h>
+#include <iostream>
+
+class TestDrawStrategy
+{
+ public:
+   explicit TestDrawStrategy( Color color ) : color_(color) {}
+
+   void operator()( Circle const& circle ) const
+   {
+      std::cout << "circle: radius=" << circle.radius()
+                << ", color = " << to_string(color_) << '\n';
+   }
+
+   void operator()( Square const& square ) const
+   {
+      std::cout << "square: side=" << square.side()
+                << ", color = " << to_string(color_) << '\n';
+   }
+
+ private:
+   Color color_;
+};
+
+
+//---- <Shapes.h> ---------------------------------------------------------------------------------
 
 //#include <Shape.h>
 #include <vector>
@@ -155,7 +190,7 @@ void drawAllShapes( Shapes const& shapes )
 {
    for( auto const& shape : shapes )
    {
-      draw( shape );
+      free_draw( shape );
    }
 }
 

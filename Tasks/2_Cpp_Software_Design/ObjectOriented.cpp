@@ -3,7 +3,7 @@
 * \file ObjectOriented.cpp
 * \brief C++ Training - Example for an object-oriented approach to draw shapes
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -157,9 +157,9 @@ void drawAllShapes( const std::vector<std::unique_ptr<Shape>>& shapes );
 
 void drawAllShapes( const std::vector<std::unique_ptr<Shape>>& shapes )
 {
-   for ( const auto& s : shapes )
+   for ( const auto& shape : shapes )
    {
-      s->draw();
+      shape->draw();
    }
 }
 

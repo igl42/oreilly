@@ -3,13 +3,14 @@
 * \file TypeErasure_SBO.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
-* Task: Implement the 'Shape' class by means of Type Erasure. 'Shape' may require all types to
-*       provide a free 'draw()' function that draws them to the screen.
+* Task: Implement the 'Shape' class by means of Type Erasure. Use the 'Small Buffer Optimization
+*       (SBO)' technique to avoid any dynamic allocation. 'Shape' may require all types to
+*       provide a 'free_draw()' function that draws them to the screen.
 *
 **************************************************************************************************/
 
@@ -122,7 +123,7 @@ class Shape
    // Move operations intentionally ignored!
 
  private:
-   friend void draw( Shape const& drawable )
+   friend void free_draw( Shape const& drawable )
    {
       drawable.pimpl()->do_draw();
    }
@@ -141,7 +142,7 @@ class Shape
          : shape_( shape )
       {}
 
-      void do_draw() const final { draw( shape_ ); }
+      void do_draw() const final { free_draw( shape_ ); }
       void clone( Concept* memory ) const final { ::new (memory) Model(*this); }
 
       ShapeT shape_;
@@ -195,6 +196,8 @@ class Circle
 
 //---- <Square.h> ---------------------------------------------------------------------------------
 
+//#include <Point.h>
+
 class Square
 {
  public:
@@ -217,8 +220,8 @@ class Square
 class Circle;
 class Square;
 
-void draw( Circle const& circle );
-void draw( Square const& square );
+void free_draw( Circle const& circle );
+void free_draw( Square const& square );
 
 
 //---- <Draw.cpp> ---------------------------------------------------------------------------------
@@ -226,14 +229,15 @@ void draw( Square const& square );
 //#include <Draw.h>
 //#include <Circle.h>
 //#include <Square.h>
+//#include <GraphicsLibrary.h>
 #include <iostream>
 
-void draw( Circle const& circle )
+void free_draw( Circle const& circle )
 {
    std::cout << "circle: radius=" << circle.radius() << std::endl;
 }
 
-void draw( Square const& square )
+void free_draw( Square const& square )
 {
    std::cout << "square: side=" << square.side() << std::endl;
 }
@@ -263,7 +267,7 @@ void drawAllShapes( Shapes const& shapes )
 {
    for( auto const& shape : shapes )
    {
-      draw( shape );
+      free_draw( shape );
    }
 }
 

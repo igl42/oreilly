@@ -3,7 +3,7 @@
 * \file Function_Ref.cpp
 * \brief C++ Training - Programming Task for Type Erasure
 *
-* Copyright (C) 2015-2022 Klaus Iglberger - All Rights Reserved
+* Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
 *
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -28,9 +28,9 @@ class Function_Ref;
 //---- <Main.cpp> ---------------------------------------------------------------------------------
 
 template< typename Fn, typename... Args >
-void test( const Function_Ref<Fn>& f, Args&&... args )
+void test( Function_Ref<Fn> const& f, Args&&... args )
 {
-   const auto res = f( std::forward<Args>(args)... );
+   auto const res = f( std::forward<Args>(args)... );
    std::cout << "\n res = " << res << "\n\n";
 }
 
@@ -51,17 +51,17 @@ int main()
 {
    /*
    {
-      const auto fp = foo;  // Function pointer
+      auto const fp = foo;  // Function pointer
       test<int(void)>( fp );
    }
 
    {
-      const auto fo = Foo{};  // Function object
+      auto const fo = Foo{};  // Function object
       test<double(double)>( fo, 1.0 );
    }
 
    {
-      const auto lambda = [](){ return "three"; };  // Lambda
+      auto const lambda = [](){ return "three"; };  // Lambda
       test<std::string(void)>( lambda );
    }
    */

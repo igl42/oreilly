@@ -12,14 +12,14 @@
 
 # Build rules
 default:
-	@echo "\nBuilding all tasks in chapter \"The Special Member Functions\""
-	@$(MAKE) --no-print-directory -C ./2_The_Special_Member_Functions
+	@echo "\nBuilding all tasks in chapter \"C++ Software Design\""
+	@$(MAKE) --no-print-directory -C ./2_Cpp_Software_Design
 
 
 # Cleanup
 clean:
 	@echo "Cleaning up..."
-	@$(MAKE) --no-print-directory -C ./2_The_Special_Member_Functions clean
+	@$(MAKE) --no-print-directory -C ./2_Cpp_Software_Design clean
 
 
 # Setting the independent commands

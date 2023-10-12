@@ -12,14 +12,14 @@
 
 # Build rules
 default:
-	@echo "\nBuilding all tasks in chapter \"C++ Software Design\""
-	@$(MAKE) --no-print-directory -C ./2_Cpp_Software_Design
+	@echo "\nBuilding all tasks in chapter \"STL Algorithms\""
+	@$(MAKE) --no-print-directory -C ./2_STL_Algorithms
 
 
 # Cleanup
 clean:
 	@echo "Cleaning up..."
-	@$(MAKE) --no-print-directory -C ./2_Cpp_Software_Design clean
+	@$(MAKE) --no-print-directory -C ./2_STL_Algorithms clean
 
 
 # Setting the independent commands

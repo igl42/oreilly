@@ -12,14 +12,14 @@
 
 # Build rules
 default:
-	@echo "\nBuilding all tasks in chapter \"Templates\""
-	@$(MAKE) --no-print-directory -C ./2_Templates
+	@echo "\nBuilding all tasks in chapter \"The Special Member Functions\""
+	@$(MAKE) --no-print-directory -C ./2_SMF
 
 
 # Cleanup
 clean:
 	@echo "Cleaning up..."
-	@$(MAKE) --no-print-directory -C ./2_Templates clean
+	@$(MAKE) --no-print-directory -C ./2_SMF clean
 
 
 # Setting the independent commands

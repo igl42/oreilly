@@ -17,4 +17,4 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 enable_testing()
 
-add_subdirectory(2_Templates)
+add_subdirectory(2_SMF)

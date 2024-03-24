@@ -1,8 +1,8 @@
 #==================================================================================================
 #
-#  CMakeLists for the C++ Training
+#  Makefile for the C++ Training
 #
-#  Copyright (C) 2015-2023 Klaus Iglberger - All Rights Reserved
+#  Copyright (C) 2015-2024 Klaus Iglberger - All Rights Reserved
 #
 #  This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 #  context of the C++ training or with explicit agreement by Klaus Iglberger.
@@ -17,4 +17,4 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 enable_testing()
 
-add_subdirectory(2_STL_Algorithms)
+add_subdirectory(2_Special_Member_Functions)

@@ -9,7 +9,7 @@
 #
 #==================================================================================================
 
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(CppTraining CXX)
 
 # use solution folders in Visual Studio
@@ -17,4 +17,4 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 enable_testing()
 
-add_subdirectory(2_Cpp_Software_Design)
+add_subdirectory(2_Special_Member_Functions)
